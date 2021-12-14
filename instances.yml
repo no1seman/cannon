@@ -20,5 +20,5 @@ cannon.s2-replica:
   http_port: 8085
 
 cannon-stateboard:
-  listen: localhost:4401
+  listen: localhost:3300
   password: passwd

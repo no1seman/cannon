@@ -4,86 +4,47 @@ This a simplest application based on Tarantool Cartridge.
 
 ## Quick start
 
-To build application and setup topology:
+0. Install centos 7 (CentOS-7-x86_64-Minimal-2009.iso will be enough)
+1. Setup network via `nmtui` to make public internet available
+2. Copy cannon-0.0.1-0.rpm to /tmp (scp ./cannon-0.0.1-0.rpm root@server:/tmp)
+3. Run ./setup.sh script (root privileges needed)
 
-```bash
-cartridge build
-cartridge start -d
-cartridge replicasets setup --bootstrap-vshard
-```
+If all steps was successful you will got fully workable cluster:
 
-Now you can visit http://localhost:8081 and see your application's Admin Web UI.
+#|Instance|Role|IPROTO|HTTP
+-|-|-|-|-
+1 | cannon-stateboard | stateboard | 3301 | 8081
+2 | router | router | 3301 | 8081
+3 | s1-master | storage | 3302 | 8082
+4 | s1-replica | storage | 3303 | 8083
+5 | s2-master | storage | 3304 | 8084
+6 | s2-replica | storage | 3305 | 8085
 
-**Note**, that application stateboard is always started by default.
-See [`.cartridge.yml`](./.cartridge.yml) file to change this behavior.
+## Make some load
 
-## Application
+1. In `cannon.py` specify Tarantool cluster IP or FQDN
+2. Run `python3 cannon.py`
 
-Application entry point is [`init.lua`](./init.lua) file.
-It configures Cartridge, initializes admin functions and exposes metrics endpoints.
-Before requiring `cartridge` module `package_compat.cfg()` is called.
-It configures package search path to correctly start application on production
-(e.g. using `systemd`).
+## Useful commands
 
-## Roles
+Att.: All the fo;;owing command must be run into apps dir or in repo dir!
 
-Application has one simple role, [`app.roles.custom`](./app/roles/custom.lua).
-It exposes `/hello` and `/metrics` endpoints:
+`make .rocks` - install all rocks
+`make bootstrap` - bootstrap cluster and fire migrations
+`make start` - start cluster
+`make stop` - stop cluster
+`make migrations` - fire migrations
+`make clean` - remove all cluster data, logs and configs
+`make clean-rocks` - remove all installed rocks
+`make build` - build rpm (`docker` must be installed)
+`make all` - runs `make stop && make clean && make bootstrap && make migrations` at once
 
-```bash
-curl localhost:8081/hello
-curl localhost:8081/metrics
-```
+## Development
 
-Also, Cartridge roles [are registered](./init.lua)
-(`vshard-storage`, `vshard-router` and `metrics`).
+For local development (centOS 7) need to install the following packages:
 
-You can add your own role, but don't forget to register in using
-`cartridge.cfg` call.
+```sh
+curl -L https://tarantool.io/installer.sh | sudo -E bash -s -- --repo-only
 
-## Instances configuration
-
-Configuration of instances that can be used to start application
-locally is places in [instances.yml](./instances.yml).
-It is used by `cartridge start`.
-
-## Topology configuration
-
-Topology configuration is described in [`replicasets.yml`](./replicasets.yml).
-It is used by `cartridge replicasets setup`.
-
-## Tests
-
-Simple unit and integration tests are placed in [`test`](./test) directory.
-
-First, we need to install test dependencies:
-
-```bash
-./deps.sh
-```
-
-Then, run linter:
-
-```bash
-.rocks/bin/luacheck .
-```
-
-Now we can run tests:
-
-```bash
-cartridge stop  # to prevent "address already in use" error
-.rocks/bin/luatest -v
-```
-
-## Admin
-
-Application has admin function [`probe`](./app/admin.lua) configured.
-You can use it to probe instances:
-
-```bash
-cartridge start -d  # if you've stopped instances
-cartridge admin probe \
-  --name cannon \
-  --run-dir ./tmp/run \
-  --uri localhost:3302
+sudo yum install cartridge-cli tarantool tarantool-devel unzip git cmake centos-release-scl devtoolset-7-gcc* gcc-c++
 ```

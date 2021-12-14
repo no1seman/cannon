@@ -1,13 +1,6 @@
-local cartridge = require('cartridge')
-
 local function init(opts) -- luacheck: no unused args
     -- if opts.is_master then
     -- end
-
-    local httpd = assert(cartridge.service_get('httpd'), "Failed to get httpd service")
-    httpd:route({method = 'GET', path = '/hello'}, function()
-        return {body = 'Hello world!'}
-    end)
 
     return true
 end
@@ -28,10 +21,13 @@ local function apply_config(conf, opts) -- luacheck: no unused args
 end
 
 return {
-    role_name = 'app.roles.custom',
+    role_name = 'app.roles.storage',
     init = init,
     stop = stop,
     validate_config = validate_config,
     apply_config = apply_config,
-    -- dependencies = {'cartridge.roles.vshard-router'},
+    dependencies = {
+        'cartridge.roles.vshard-storage',
+        'cartridge.roles.crud-storage',
+    },
 }
