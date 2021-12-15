@@ -13,7 +13,7 @@ If all steps was successful you will got fully workable cluster:
 
 #|Instance|Role|IPROTO|HTTP
 -|-|-|-|-
-1 | cannon-stateboard | stateboard | 3301 | 8081
+1 | cannon-stateboard | stateboard | 3300 | -
 2 | router | router | 3301 | 8081
 3 | s1-master | storage | 3302 | 8082
 4 | s1-replica | storage | 3303 | 8083
