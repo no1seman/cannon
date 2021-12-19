@@ -22,6 +22,7 @@ If all steps was successful you will got fully workable cluster:
 
 ## Make some load
 
+0. Install tarantool python driver: `pip install tarantool\>0.4`
 1. In `cannon.py` specify Tarantool cluster IP or FQDN
 2. Run `python3 cannon.py`
 
